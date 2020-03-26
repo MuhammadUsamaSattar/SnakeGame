@@ -4,7 +4,7 @@
 	class gameState
 	{
 	private:
-		int state;
+		int _state;
 
 	public:
 		void setState(std::string a);
