@@ -1,7 +1,7 @@
 #include<iostream>
 #include<SFML/Graphics.hpp>
 #include<SFML/System.hpp>
-#include<SFML/Window.hpp>
+#include<SFML/Window.hpp>dsweqw
 #include"GameState.h"
 #include"Snake.h"
 #include"Food.h"
@@ -41,13 +41,13 @@ int main()
 		{
 			Player.setDirection();
 			time = clock.getElapsedTime();
-			if (time.asSeconds() >= 0.05)
+			if (time.asSeconds() >= 0.075)
 			{
 				if (Player.getCoordinates(0) == food.getCoordinates())
 				{
 					Player.setLength(Player.getLength() + 1);
 					food.setCoordinates();
-					if(Player.getLength == 64)	Player.reset();
+					if(Player.getLength() == 64)	Player.reset();
 				}
 				else if (Player.deathCondition())
 					Player.reset();
