@@ -5,6 +5,7 @@
 #include"GameState.h"
 #include"Snake.h"
 #include"Food.h"
+#include"Menu.h"
 
 void drawSnake(snake a, sf::RectangleShape* s);
 
@@ -13,11 +14,12 @@ int main()
 	snake Player;
 	Food food;
 	gameState state;
-	
+	Menu menu;
 
 	Player.reset();
 	food.setCoordinates();
-	state.setState("game");
+	state.setState("menu");
+	menu.setPointer(0);
 
 	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SnakeGame", sf::Style::Fullscreen);
 	sf::RectangleShape shape[64];
@@ -32,12 +34,42 @@ int main()
 			if (close.type == sf::Event::Closed)
 				window.close();
 
-		while (state.getState() == 0)
+		window.clear(sf::Color::Black);
+
+		if(state.getState() == 0)
 		{
+			sf::Font font;
+			font.loadFromFile("BAHNSCHRIFT.ttf");
+			sf::Text text_play, text_exit;
+			text_play.setFont(font);
+			text_exit.setFont(font);
+			text_play.setCharacterSize(100);
+			text_exit.setCharacterSize(100);
+			text_play.setString("Play");
+			text_exit.setString("Exit");
+			text_play.setFillColor(sf::Color::White);
+			text_exit.setFillColor(sf::Color::White);
+			text_play.setPosition(sf::Vector2f(900, 540));
+			text_exit.setPosition(sf::Vector2f(900, 740));
 
+			window.draw(text_play);
+			window.draw(text_exit);
+
+			menu.navigateMenu();
+
+			sf::CircleShape pointer(30, 3);
+			pointer.setPosition(sf::Vector2f(800, 580 + (200 * menu.getPointer())));
+			pointer.setRotation(90);
+			window.draw(pointer);
+
+			if (menu.confirmOption())
+			{
+				if (menu.getPointer() == 0)
+					state.setState("game");
+				else window.close();
+			}
 		}
-
-		while (state.getState() == 1)
+		else
 		{
 			Player.setDirection();
 			time = clock.getElapsedTime();
@@ -56,7 +88,6 @@ int main()
 				clock.restart();
 			}
 
-			window.clear(sf::Color::Black);
 			sf::RectangleShape shapeFood(sf::Vector2f(40, 40));
 			shapeFood.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));
 			shapeFood.setFillColor(sf::Color::Red);
@@ -65,8 +96,11 @@ int main()
 			drawSnake(Player, shape);
 			for (int i = 0; i < Player.getLength(); i++)
 				window.draw(shape[i]);
-			window.display();
+
+			if (menu.pauseCheck())
+				state.setState("menu");
 		}
+		window.display();
 	}
 	return 0;
 }
