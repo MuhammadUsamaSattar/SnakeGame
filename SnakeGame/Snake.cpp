@@ -19,7 +19,7 @@ void snake::setDirection()
 		_direction = { -1,0 };
 }
 
-sf::Vector2i snake::getDirection()
+sf::Vector2f snake::getDirection()
 {
 	return _direction;
 }
@@ -36,17 +36,16 @@ int snake::getLength()
 
 void snake::setCoordinates()
 {
-	for (int i = _snakeLength-1; i > 0; i--)
-		_bodycoordinates[i] = _bodycoordinates[i-1];
-	_bodycoordinates[0] += _direction;
-
+	for (int i = _snakeLength; i > 0; i--)
+		_bodycoordinates[i] = _bodycoordinates[i - 1];
+	_bodycoordinates[0] = _bodycoordinates[0] + _direction;
 	if (_bodycoordinates[0].x > 48) _bodycoordinates[0].x = 1;
 	else if (_bodycoordinates[0].x < 1) _bodycoordinates[0].x = 48;
 	else if (_bodycoordinates[0].y > 27) _bodycoordinates[0].y = 1;
 	else if (_bodycoordinates[0].y < 1) _bodycoordinates[0].y = 27;
 }
 
-sf::Vector2i snake::getCoordinates(int i)
+sf::Vector2f snake::getCoordinates(int i)
 {
 	return _bodycoordinates[i];
 }

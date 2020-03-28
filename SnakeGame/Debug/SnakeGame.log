@@ -1,28 +1,10 @@
 ﻿  Main.cpp
 C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(4,9): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(61,46): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(62,46): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(92,105): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(92,69): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(113,70): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Softwares\Projects\SnakeGame\SnakeGame\Main.cpp(113,36): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
+  Snake.cpp
+  Generating Code...
   SnakeGame.vcxproj -> C:\Softwares\Projects\SnakeGame\Debug\SnakeGame.exe
