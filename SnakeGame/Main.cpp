@@ -36,6 +36,7 @@ int main()
 				window.close();
 
 		window.clear(sf::Color::Black);
+		time = clock.getElapsedTime();
 
 		if(state.getState() == 0)
 		{
@@ -56,8 +57,12 @@ int main()
 			window.draw(text_play);
 			window.draw(text_exit);
 
-			menu.navigateMenu();
-
+			if (time.asSeconds() > 0.075)
+			{
+				menu.navigateMenu();
+				clock.restart();
+			}
+			
 			sf::CircleShape pointer(30, 3);
 			pointer.setPosition(sf::Vector2f(800, 580 + (200 * menu.getPointer())));
 			pointer.setRotation(90);
@@ -66,13 +71,16 @@ int main()
 			if (menu.confirmOption())
 			{
 				if (menu.getPointer() == 0)
+				{
 					state.setState("game");
+					clock.restart();
+				}
+
 				else window.close();
 			}
 		}
 		else
 		{
-			time = clock.getElapsedTime();
 				Player.setDirection();
 				if (time.asSeconds() > 0.075)
 				{
