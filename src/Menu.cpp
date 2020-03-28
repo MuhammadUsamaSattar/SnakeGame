@@ -14,8 +14,11 @@ int Menu::getPointer()
 
 void Menu::navigateMenu()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		_pointer = (_pointer + 1) % 2;
+	if ( sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		_pointer = 0;
+
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		_pointer = 1;
 }
 
 bool Menu::confirmOption()

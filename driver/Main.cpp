@@ -12,7 +12,7 @@ void drawSnake(snake a, sf::RectangleShape* s);
 void drawMask( snake& a, sf::RectangleShape* s,
 			   const sf::Time& time, sf::RenderWindow& window);
 
-constexpr double SPEED = 0.075;
+constexpr double kSpeed = 0.075;
 
 int main()
 {
@@ -24,14 +24,58 @@ int main()
 
 	Player.reset();
 	food.setCoordinates();
-	state.setState("game");
+	state.setState("menu");
 	menu.setPointer(0);
 
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SnakeGame");
+	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SnakeGame", sf::Style::Fullscreen);
 	sf::RectangleShape shape[64];
 	window.setFramerateLimit(60);
 	sf::Clock clock;
 	sf::Time time;
+
+	// Load the background texture
+	sf::Texture background_tex;
+	sf::Sprite background;
+
+	if (background_tex.loadFromFile("resources/res/background.jpeg"))
+		background.setTexture(background_tex);
+
+	// Load the main menu font and set its properties
+	sf::Font font;
+	font.loadFromFile("resources/fonts/BAHNSCHRIFT.ttf");
+	sf::Text text_play, text_exit, text_score;
+
+	// -> Set font
+	text_play.setFont(font);
+	text_exit.setFont(font);
+	text_score.setFont(font);
+
+	// -> Set character size
+	text_play.setCharacterSize(100);
+	text_exit.setCharacterSize(100);
+	text_score.setCharacterSize(25);
+
+	// -> Set character string
+	text_play.setString("Play");
+	text_exit.setString("Exit");
+
+	// -> Fill color
+	text_play.setFillColor(sf::Color::White);
+	text_exit.setFillColor(sf::Color::White);
+	text_score.setFillColor(sf::Color::White);
+	
+	// -> Position
+	text_play.setPosition(sf::Vector2f(200, 390));
+	text_exit.setPosition(sf::Vector2f(200, 590));
+	text_score.setPosition(sf::Vector2f(900, 25));
+	
+	// Pointer
+	sf::CircleShape pointer(30, 3);
+	pointer.setRotation(90);
+
+	// Food
+	sf::RectangleShape shapeFood(sf::Vector2f(40, 40));
+	shapeFood.setFillColor(sf::Color::Red);
 	
 	while (window.isOpen())
 	{
@@ -45,32 +89,18 @@ int main()
 
 		if(state.getState() == 0)
 		{
-			sf::Font font;
-			font.loadFromFile("Resources/fonts/BAHNSCHRIFT.ttf");
-			sf::Text text_play, text_exit;
-			text_play.setFont(font);
-			text_exit.setFont(font);
-			text_play.setCharacterSize(100);
-			text_exit.setCharacterSize(100);
-			text_play.setString("Play");
-			text_exit.setString("Exit");
-			text_play.setFillColor(sf::Color::White);
-			text_exit.setFillColor(sf::Color::White);
-			text_play.setPosition(sf::Vector2f(900, 540));
-			text_exit.setPosition(sf::Vector2f(900, 740));
-
+			window.draw(background);
 			window.draw(text_play);
 			window.draw(text_exit);
 
-			if (time.asSeconds() > SPEED)
+			if (time.asSeconds() > kSpeed)
 			{
 				menu.navigateMenu();
 				clock.restart();
 			}
-			
-			sf::CircleShape pointer(30, 3);
-			pointer.setPosition(sf::Vector2f(800, 580 + (200 * menu.getPointer())));
-			pointer.setRotation(90);
+
+			// Draw the pointer
+			pointer.setPosition(sf::Vector2f(150, 430 + (200 * menu.getPointer())));
 			window.draw(pointer);
 
 			if (menu.confirmOption())
@@ -87,7 +117,7 @@ int main()
 		else
 		{
 				Player.setDirection();
-				if (time.asSeconds() > SPEED)
+				if (time.asSeconds() > kSpeed)
 				{
 					if (abs(Player.getCoordinates(0).x - food.getCoordinates().x) <= 0.8 && abs(Player.getCoordinates(0).y - food.getCoordinates().y) <= 0.8)
 					{
@@ -109,10 +139,7 @@ int main()
 					clock.restart();
 				}
 				
-
-			sf::RectangleShape shapeFood(sf::Vector2f(40, 40));
 			shapeFood.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));
-			shapeFood.setFillColor(sf::Color::Red);
 			window.draw(shapeFood);
 
 			drawSnake(Player, shape);
@@ -120,6 +147,11 @@ int main()
 				window.draw(shape[i]);
 
 			drawMask(Player, shape, time, window);
+
+			// Display the score
+			text_score.setString("Score: " + std::to_string(Player.getLength()));
+			window.draw(text_score);
+			
 			if (menu.pauseCheck())
 				state.setState("menu");
 		}
@@ -142,7 +174,7 @@ void drawMask( snake& a, sf::RectangleShape* s,
 			   const sf::Time& time, sf::RenderWindow& window)
 {
 	// Ternary operator, dt is the interpolation constant
-	const auto dt = time.asSeconds() <= SPEED ? std::min(time.asSeconds() / SPEED, 1.0) : 0;
+	const auto dt = time.asSeconds() <= kSpeed ? std::min(time.asSeconds() / kSpeed, 1.0) : 0;
 
 	// We add a virtual mask for head to expand and tail to contract
 	sf::RectangleShape head_mask, tail_mask;
