@@ -11,6 +11,7 @@ void drawSnake(snake a, sf::RectangleShape* s);
 
 int main()
 {
+	int i = 0;
 	snake Player;
 	Food food;
 	gameState state;
@@ -71,22 +72,30 @@ int main()
 		}
 		else
 		{
-			Player.setDirection();
 			time = clock.getElapsedTime();
-			if (time.asSeconds() >= 0.075)
-			{
-				if (Player.getCoordinates(0) == food.getCoordinates())
+				Player.setDirection();
+				if (time.asSeconds() > 0.075)
 				{
-					Player.setLength(Player.getLength() + 1);
-					food.setCoordinates();
-					if(Player.getLength() == 64)	Player.reset();
-				}
-				else if (Player.deathCondition())
-					Player.reset();
+					if (abs(Player.getCoordinates(0).x - food.getCoordinates().x) <= 0.8 && abs(Player.getCoordinates(0).y - food.getCoordinates().y) <= 0.8)
+					{
+						Player.setLength(Player.getLength() + 1);
+						food.setCoordinates();
+						if (Player.getLength() == 64)
+						{
+							Player.reset();
+							state.setState("menu");
+						}
+					}
+					else if (Player.deathCondition())
+					{
+						Player.reset();
+						state.setState("menu");
+					}
 
-				Player.setCoordinates();
-				clock.restart();
-			}
+					Player.setCoordinates();
+					clock.restart();
+				}
+				
 
 			sf::RectangleShape shapeFood(sf::Vector2f(40, 40));
 			shapeFood.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));

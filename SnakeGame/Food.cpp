@@ -3,7 +3,7 @@
 #include<time.h>
 
 
-sf::Vector2i Food::getCoordinates()
+sf::Vector2f Food::getCoordinates()
 {
 	return _coordinates;
 }

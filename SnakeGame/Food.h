@@ -4,9 +4,9 @@
 class Food
 {
 private:
-	sf::Vector2i _coordinates;
+	sf::Vector2f _coordinates;
 	
 public:
-	sf::Vector2i getCoordinates();
+	sf::Vector2f getCoordinates();
 	void setCoordinates();
 };
