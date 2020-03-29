@@ -1,4 +1,5 @@
 #include<iostream>
+#include<string>
 #include<algorithm>
 #include<SFML/Graphics.hpp>
 #include<SFML/System.hpp>
@@ -11,8 +12,18 @@
 void drawSnake(snake a, sf::RectangleShape* s);
 void drawMask( snake& a, sf::RectangleShape* s,
 			   const sf::Time& time, sf::RenderWindow& window);
+bool loadTexture(sf::Texture& texture, const std::string& file_name);
 
+// Global Variables
 constexpr double kSpeed = 0.075;
+
+// -> Textures
+sf::Texture head_up, head_down, head_right, head_left;
+
+auto flag_up = loadTexture(head_up, "resources/res/head_up.png");
+auto flag_down = loadTexture(head_down, "resources/res/head_down.png");
+auto flag_left = loadTexture(head_left, "resources/res/head_left.png");
+auto flag_right = loadTexture(head_right, "resources/res/head_right.png");
 
 int main()
 {
@@ -21,7 +32,7 @@ int main()
 	Food food;
 	gameState state;
 	Menu menu;
-
+	
 	Player.reset();
 	food.setCoordinates();
 	state.setState("menu");
@@ -74,8 +85,15 @@ int main()
 	pointer.setRotation(90);
 
 	// Food
-	sf::RectangleShape shapeFood(sf::Vector2f(40, 40));
-	shapeFood.setFillColor(sf::Color::Red);
+	sf::Texture food_tex;
+	sf::Sprite food_sprite;
+
+	if (food_tex.loadFromFile("resources/res/apple.png"))
+	{
+		food_tex.setSmooth(true);
+		food_sprite.setScale(sf::Vector2f(0.05, 0.05));
+		food_sprite.setTexture(food_tex);
+	}
 	
 	while (window.isOpen())
 	{
@@ -139,8 +157,8 @@ int main()
 					clock.restart();
 				}
 				
-			shapeFood.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));
-			window.draw(shapeFood);
+			food_sprite.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));
+			window.draw(food_sprite);
 
 			drawSnake(Player, shape);
 			for (int i = 0; i < Player.getLength(); i++)
@@ -166,7 +184,7 @@ void drawSnake(snake a, sf::RectangleShape* s)
 	{
 		s[i].setSize(sf::Vector2f(40, 40));
 		s[i].setPosition(sf::Vector2f(40 * (a.getCoordinates(i).x - 1), 40 * (a.getCoordinates(i).y - 1)));
-		s[i].setFillColor(sf::Color::Green);
+		s[i].setFillColor(sf::Color(205, 220, 57));
 	}
 }
 
@@ -177,8 +195,11 @@ void drawMask( snake& a, sf::RectangleShape* s,
 	const auto dt = time.asSeconds() <= kSpeed ? std::min(time.asSeconds() / kSpeed, 1.0) : 0;
 
 	// We add a virtual mask for head to expand and tail to contract
-	sf::RectangleShape head_mask, tail_mask;
-	
+	sf::Sprite head;
+	head.setScale(sf::Vector2f(0.1, 0.1));
+
+	sf::RectangleShape tail_mask;
+
 	// Head becomes longer
 	auto dir = a.getDirection();
 	double width, height, dx, dy;
@@ -196,12 +217,18 @@ void drawMask( snake& a, sf::RectangleShape* s,
 		// If right
 		if (dir.x > 0)
 		{
-			dx = head_x + 1.0;
+			dx = head_x + width;
+
+			if (flag_right)
+				head.setTexture(head_right);
 		}
 		// If left
 		else
 		{
 			dx = head_x - width;
+			
+			if (flag_left)
+				head.setTexture(head_left);
 		}
 	}
 	// -> If moving in the y direction
@@ -214,18 +241,23 @@ void drawMask( snake& a, sf::RectangleShape* s,
 		// If down
 		if (dir.y > 0)
 		{
-			dy = head_y + 1.0;
+			dy = head_y + height;
+
+			if (flag_down)
+				head.setTexture(head_down);
 		}
 		// If up
 		else
 		{
 			dy = head_y - height;
+
+			if (flag_up)
+				head.setTexture(head_up);
+			// setTexture(head, "resources/res/head_up.png");
 		}
 	}
 
-	head_mask.setSize(sf::Vector2f(40 * width, 40 * height));	
-	head_mask.setPosition(sf::Vector2f( 40 * dx, 40 * dy));
-	head_mask.setFillColor(sf::Color::Green);
+	head.setPosition(sf::Vector2f(40 * dx, 40 * dy));
 	
 	// Tail becomes shorter
 	const auto snake_length = a.getLength();
@@ -285,6 +317,11 @@ void drawMask( snake& a, sf::RectangleShape* s,
 	tail_mask.setPosition(sf::Vector2f(40 * dx, 40 * dy));
 	tail_mask.setFillColor(sf::Color::Black);
 	
-	window.draw(head_mask);
+	window.draw(head);
 	window.draw(tail_mask);
+}
+
+bool loadTexture(sf::Texture& texture, const std::string& file_name)
+{
+	return texture.loadFromFile(file_name);
 }
