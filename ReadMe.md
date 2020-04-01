@@ -7,9 +7,9 @@ The written code is a primitive attempt by the author to code a Snake Game. The 
 * Change in length of snake
 * 60 fps smooth movement
 
-(/docs/images/MainMenu.png)
+![Manin Menu image](/docs/images/MainMenu.png)
 
-(/docs/images/Game.png)
+![Game image](/docs/images/Game.png)
 
 ## Future features
 
