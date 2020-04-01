@@ -1,4 +1,5 @@
 #include<iostream>
+#include<string>
 #include<algorithm>
 #include<SFML/Graphics.hpp>
 #include<SFML/System.hpp>
@@ -11,8 +12,18 @@
 void drawSnake(snake a, sf::RectangleShape* s);
 void drawMask( snake& a, sf::RectangleShape* s,
 			   const sf::Time& time, sf::RenderWindow& window);
+bool loadTexture(sf::Texture& texture, const std::string& file_name);
 
-constexpr double SPEED = 0.075;
+// Global Variables
+constexpr double kSpeed = 0.075;
+
+// -> Textures
+sf::Texture head_up, head_down, head_right, head_left;
+
+auto flag_up = loadTexture(head_up, "resources/res/head_up.png");
+auto flag_down = loadTexture(head_down, "resources/res/head_down.png");
+auto flag_left = loadTexture(head_left, "resources/res/head_left.png");
+auto flag_right = loadTexture(head_right, "resources/res/head_right.png");
 
 int main()
 {
@@ -21,17 +32,68 @@ int main()
 	Food food;
 	gameState state;
 	Menu menu;
-
+	
 	Player.reset();
 	food.setCoordinates();
-	state.setState("game");
+	state.setState("menu");
 	menu.setPointer(0);
 
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SnakeGame");
+	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SnakeGame", sf::Style::Fullscreen);
 	sf::RectangleShape shape[64];
 	window.setFramerateLimit(60);
 	sf::Clock clock;
 	sf::Time time;
+
+	// Load the background texture
+	sf::Texture background_tex;
+	sf::Sprite background;
+
+	if (background_tex.loadFromFile("resources/res/background.jpeg"))
+		background.setTexture(background_tex);
+
+	// Load the main menu font and set its properties
+	sf::Font font;
+	font.loadFromFile("resources/fonts/BAHNSCHRIFT.ttf");
+	sf::Text text_play, text_exit, text_score;
+
+	// -> Set font
+	text_play.setFont(font);
+	text_exit.setFont(font);
+	text_score.setFont(font);
+
+	// -> Set character size
+	text_play.setCharacterSize(100);
+	text_exit.setCharacterSize(100);
+	text_score.setCharacterSize(25);
+
+	// -> Set character string
+	text_play.setString("Play");
+	text_exit.setString("Exit");
+
+	// -> Fill color
+	text_play.setFillColor(sf::Color::White);
+	text_exit.setFillColor(sf::Color::White);
+	text_score.setFillColor(sf::Color::White);
+	
+	// -> Position
+	text_play.setPosition(sf::Vector2f(200, 390));
+	text_exit.setPosition(sf::Vector2f(200, 590));
+	text_score.setPosition(sf::Vector2f(900, 25));
+	
+	// Pointer
+	sf::CircleShape pointer(30, 3);
+	pointer.setRotation(90);
+
+	// Food
+	sf::Texture food_tex;
+	sf::Sprite food_sprite;
+
+	if (food_tex.loadFromFile("resources/res/apple.png"))
+	{
+		food_tex.setSmooth(true);
+		food_sprite.setScale(sf::Vector2f(0.05, 0.05));
+		food_sprite.setTexture(food_tex);
+	}
 	
 	while (window.isOpen())
 	{
@@ -45,32 +107,18 @@ int main()
 
 		if(state.getState() == 0)
 		{
-			sf::Font font;
-			font.loadFromFile("Resources/fonts/BAHNSCHRIFT.ttf");
-			sf::Text text_play, text_exit;
-			text_play.setFont(font);
-			text_exit.setFont(font);
-			text_play.setCharacterSize(100);
-			text_exit.setCharacterSize(100);
-			text_play.setString("Play");
-			text_exit.setString("Exit");
-			text_play.setFillColor(sf::Color::White);
-			text_exit.setFillColor(sf::Color::White);
-			text_play.setPosition(sf::Vector2f(900, 540));
-			text_exit.setPosition(sf::Vector2f(900, 740));
-
+			window.draw(background);
 			window.draw(text_play);
 			window.draw(text_exit);
 
-			if (time.asSeconds() > SPEED)
+			if (time.asSeconds() > kSpeed)
 			{
 				menu.navigateMenu();
 				clock.restart();
 			}
-			
-			sf::CircleShape pointer(30, 3);
-			pointer.setPosition(sf::Vector2f(800, 580 + (200 * menu.getPointer())));
-			pointer.setRotation(90);
+
+			// Draw the pointer
+			pointer.setPosition(sf::Vector2f(150, 430 + (200 * menu.getPointer())));
 			window.draw(pointer);
 
 			if (menu.confirmOption())
@@ -87,7 +135,7 @@ int main()
 		else
 		{
 				Player.setDirection();
-				if (time.asSeconds() > SPEED)
+				if (time.asSeconds() > kSpeed)
 				{
 					if (abs(Player.getCoordinates(0).x - food.getCoordinates().x) <= 0.8 && abs(Player.getCoordinates(0).y - food.getCoordinates().y) <= 0.8)
 					{
@@ -109,17 +157,19 @@ int main()
 					clock.restart();
 				}
 				
-
-			sf::RectangleShape shapeFood(sf::Vector2f(40, 40));
-			shapeFood.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));
-			shapeFood.setFillColor(sf::Color::Red);
-			window.draw(shapeFood);
+			food_sprite.setPosition(sf::Vector2f((food.getCoordinates().x - 1) * 40, (food.getCoordinates().y - 1) * 40));
+			window.draw(food_sprite);
 
 			drawSnake(Player, shape);
 			for (int i = 0; i < Player.getLength(); i++)
 				window.draw(shape[i]);
 
 			drawMask(Player, shape, time, window);
+
+			// Display the score
+			text_score.setString("Score: " + std::to_string(Player.getLength()));
+			window.draw(text_score);
+			
 			if (menu.pauseCheck())
 				state.setState("menu");
 		}
@@ -134,7 +184,7 @@ void drawSnake(snake a, sf::RectangleShape* s)
 	{
 		s[i].setSize(sf::Vector2f(40, 40));
 		s[i].setPosition(sf::Vector2f(40 * (a.getCoordinates(i).x - 1), 40 * (a.getCoordinates(i).y - 1)));
-		s[i].setFillColor(sf::Color::Green);
+		s[i].setFillColor(sf::Color(205, 220, 57));
 	}
 }
 
@@ -142,11 +192,14 @@ void drawMask( snake& a, sf::RectangleShape* s,
 			   const sf::Time& time, sf::RenderWindow& window)
 {
 	// Ternary operator, dt is the interpolation constant
-	const auto dt = time.asSeconds() <= SPEED ? std::min(time.asSeconds() / SPEED, 1.0) : 0;
+	const auto dt = time.asSeconds() <= kSpeed ? std::min(time.asSeconds() / kSpeed, 1.0) : 0;
 
 	// We add a virtual mask for head to expand and tail to contract
-	sf::RectangleShape head_mask, tail_mask;
-	
+	sf::Sprite head;
+	head.setScale(sf::Vector2f(0.1, 0.1));
+
+	sf::RectangleShape tail_mask;
+
 	// Head becomes longer
 	auto dir = a.getDirection();
 	double width, height, dx, dy;
@@ -164,12 +217,18 @@ void drawMask( snake& a, sf::RectangleShape* s,
 		// If right
 		if (dir.x > 0)
 		{
-			dx = head_x + 1.0;
+			dx = head_x + width;
+
+			if (flag_right)
+				head.setTexture(head_right);
 		}
 		// If left
 		else
 		{
 			dx = head_x - width;
+			
+			if (flag_left)
+				head.setTexture(head_left);
 		}
 	}
 	// -> If moving in the y direction
@@ -182,18 +241,23 @@ void drawMask( snake& a, sf::RectangleShape* s,
 		// If down
 		if (dir.y > 0)
 		{
-			dy = head_y + 1.0;
+			dy = head_y + height;
+
+			if (flag_down)
+				head.setTexture(head_down);
 		}
 		// If up
 		else
 		{
 			dy = head_y - height;
+
+			if (flag_up)
+				head.setTexture(head_up);
+			// setTexture(head, "resources/res/head_up.png");
 		}
 	}
 
-	head_mask.setSize(sf::Vector2f(40 * width, 40 * height));	
-	head_mask.setPosition(sf::Vector2f( 40 * dx, 40 * dy));
-	head_mask.setFillColor(sf::Color::Green);
+	head.setPosition(sf::Vector2f(40 * dx, 40 * dy));
 	
 	// Tail becomes shorter
 	const auto snake_length = a.getLength();
@@ -253,6 +317,11 @@ void drawMask( snake& a, sf::RectangleShape* s,
 	tail_mask.setPosition(sf::Vector2f(40 * dx, 40 * dy));
 	tail_mask.setFillColor(sf::Color::Black);
 	
-	window.draw(head_mask);
+	window.draw(head);
 	window.draw(tail_mask);
+}
+
+bool loadTexture(sf::Texture& texture, const std::string& file_name)
+{
+	return texture.loadFromFile(file_name);
 }
