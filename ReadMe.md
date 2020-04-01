@@ -1,5 +1,7 @@
 # SnakeGame
 
+![Game image](/docs/images/Game.png)
+
 The written code is a primitive attempt by the author to code a Snake Game. The game has been limited to select features for initial development goals. The code might be edited later on for increased features, but as its stands the features in the game are limited only to:
 
 * Snake movement
